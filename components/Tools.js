@@ -21,6 +21,15 @@ const Tools = (props) => {
   const [open, setOpen] = React.useState(false)
   const [bounds, setBounds] = React.useState({})
 
+  const getDataUrl = (img) => {
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    canvas.width = img.width
+    canvas.height = img.height
+    ctx.drawImage(img, 0, 0)
+    return canvas.toDataURL('image/jpeg')
+ }
+
   const loadImage = () => {
     const image = new Image()
     image.onload = (i) => {
@@ -28,7 +37,7 @@ const Tools = (props) => {
         ...props.images,
         {
           id: getUniqueID(),
-          src: i.path[0].src,
+          src: getDataUrl(image),
           width: i.path[0].width,
           height: i.path[0].height
         }
@@ -38,13 +47,18 @@ const Tools = (props) => {
   }
 
   const loadVideo = () => {
-    props.setVideos([
-      ...props.videos,
-      {
-        id: getUniqueID(),
-        src: URL.createObjectURL(inputFileVideo.current.files[0])
-      }
-    ])
+    const reader = new FileReader()
+    reader.readAsDataURL(inputFileVideo.current.files[0])
+
+    reader.onload = function () {
+      props.setVideos([
+        ...props.videos,
+        {
+          id: getUniqueID(),
+          src: reader.result
+        }
+      ])
+    }
   }
 
   React.useEffect(() => {

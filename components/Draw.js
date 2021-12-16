@@ -1,17 +1,24 @@
 import React from 'react'
 
+import { useScreenshot } from 'use-react-screenshot'
+
 import Tools from './Tools'
 import Note from './Note'
 import Image from './Image'
 import Video from './Video'
 
-const Draw = () => {
+const Draw = (props) => {
   const canvas = React.createRef()
   const pointer = React.createRef()
+  const screenShot = React.createRef()
+
+  const [image, takeScreenshot] = useScreenshot()
 
   const [notes, setNotes] = React.useState([])
   const [images, setImages] = React.useState([])
   const [videos, setVideos] = React.useState([])
+
+  const [saveObj, setSaveObj] = React.useState({})
 
   const [mode, setMode] = React.useState('draw')
   const [ctx, setCtx] = React.useState(null)
@@ -50,15 +57,44 @@ const Draw = () => {
   }
 
   React.useEffect(() => {
+    if (Object.keys(saveObj).length > 0) {
+      if (image) {
+        const boards = JSON.parse(localStorage.getItem('boards'))
+        boards.find(e => e.id === props.id).img = image
+        localStorage.setItem('boards', JSON.stringify(boards))
+      }
+      localStorage.setItem(props.id, JSON.stringify(saveObj))
+    }
+  }, [saveObj])
+
+  React.useEffect(() => {
+    if (images.length > 0 || videos.length > 0 || notes.length > 0) {
+      takeScreenshot(screenShot.current)
+      setSaveObj({
+        images,
+        videos,
+        notes
+      })
+    }
+  }, [images, videos, notes])
+
+  React.useEffect(() => {
     const ctx = canvas.current.getContext('2d')
     ctx.fillStyle = 'white'
     ctx.fillRect(0, 0, window.innerWidth, window.innerHeight)
     ctx.lineWidth = 10
     setCtx(ctx)
+    const storage = localStorage.getItem(props.id)
+    if (storage) {
+      const data = JSON.parse(storage)
+      setImages(data.images)
+      setVideos(data.videos)
+      setNotes(data.notes)
+    }
   }, [])
 
   return (
-    <>
+    <div ref={screenShot}>
       { mode !== 'none' ?
         <div
           className="overflow-hidden absolute rounded-full pointer-events-none border-solid border border-black"
@@ -117,7 +153,7 @@ const Draw = () => {
         setVideos={setVideos}
         videos={videos}
       />
-    </>
+    </div>
   )
 }
 
