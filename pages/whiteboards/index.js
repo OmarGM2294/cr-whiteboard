@@ -1,18 +1,23 @@
 import React from 'react'
-import Link from 'next/link'
+import Head from 'next/head'
 
 import { useRouter } from 'next/router'
 import { AiOutlinePlusCircle } from "react-icons/ai"
+
+import { getUniqueID } from '../../utils/id'
 
 const Index = () => {
   const router = useRouter()
 
   const createWhiteboard = () => {
-    router.push(`/whiteboards/${Math.random()}`)
+    router.push(`/whiteboards/${getUniqueID()}`)
   }
 
   return (
     <div className="container mx-auto p-4 h-screen">
+      <Head>
+        <title>Whiteboards</title>
+      </Head>
       <h1 className="text-5xl">
         Whiteboards
       </h1>
