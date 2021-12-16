@@ -9,9 +9,9 @@ const Nav = () => {
 
   return (
     <div className="flex flex-row gap-4 absolute right-5 top-5 items-center">
-      { session ?
+      { session && session.user ?
         <img
-          src={session.user.image}
+          src={session.user.image ? session.user.image : `https://via.placeholder.com/36?text=${session.user.email[0]}`}
           className="w-10 h-10 rounded-full shadow-lg border-2 border-white"
         />
       : null }
